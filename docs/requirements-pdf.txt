@@ -1,0 +1,4 @@
+markdown-pdf==1.13.3
+markdown-it-py==4.2.0
+mdurl==0.1.2
+pymupdf==1.28.2
