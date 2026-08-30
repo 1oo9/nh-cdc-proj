@@ -309,4 +309,4 @@ Avant tout développement, NH demande :
 6. Combien de temps estimer pour le MVP ?
 7. Quels points techniques problématiques anticiper ?
 
-*Réponses : discussion en cours (1oo9 + mentor). Ce document sera mis à jour une fois les choix figés.*
+Réponses rédigées pour NH : [`docs/PROPOSITION_TECHNIQUE.md`](./PROPOSITION_TECHNIQUE.md).

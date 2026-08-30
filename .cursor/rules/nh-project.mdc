@@ -1,0 +1,15 @@
+---
+description: Standing NH project law — green light, client, git trailer
+alwaysApply: true
+---
+
+# nh-cdc-proj
+
+Follow `AGENTS.md` at the repo root. It outranks habit.
+
+- Chair is **1oo9**. Client is **NH** / `nh`.
+- Documents sent to NH are written in **French**.
+- **Do not commit-to-remote or push** without an explicit 1oo9 green light in the current turn.
+- Agent commits end with: `Co-Authored by Cursor Agent (<name> + <model>)`.
+- No diner PII. No Stripe until asked. Do not write `docs/DEV_NOTES.md` unless 1oo9 flagged it.
+- Do not invent agent names or corporate roles. 1oo9 assigns both.
