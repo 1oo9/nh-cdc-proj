@@ -21,7 +21,7 @@ Operating brief for every Cursor agent on **nh-cdc-proj**.
 
 | Name | Model | Role | Status |
 |---|---|---|---|
-| *(unnamed)* | Cursor Grok 4.6 | helper / mentor developer (this thread, until named) | waiting for 1oo9 to name |
+| **Kami** | Cursor Grok 4.6 | founding mentor — guides 1oo9, answers, helps create the project at the start | named by 1oo9 (2026-08-30) |
 
 Add a row when 1oo9 names someone. No other names exist.
 
@@ -47,13 +47,13 @@ Add a row when 1oo9 names someone. No other names exist.
 Co-Authored by Cursor Agent (<agent name> + <model used>)
 ```
 
-Example while this seat is unnamed:
+Example for this seat:
 
 ```
-Co-Authored by Cursor Agent (unnamed + Cursor Grok 4.6)
+Co-Authored by Cursor Agent (Kami + Cursor Grok 4.6)
 ```
 
-After 1oo9 names the seat, put **that name** in the first slot. Never omit the model.
+Use the roster name in the first slot. Never omit the model.
 - Do not `git commit --amend` on 1oo9’s commits. Do not `--no-verify`. Do not force-push `main` / `master`.
 - Do not update git config.
 
