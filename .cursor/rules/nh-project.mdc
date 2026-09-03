@@ -14,3 +14,4 @@ Follow `AGENTS.md` at the repo root. It outranks habit.
 - No diner PII. No Stripe until asked. Do not write `docs/DEV_NOTES.md` unless 1oo9 flagged it.
 - Do not invent agent names or corporate roles. 1oo9 assigns both.
 - **TDD is mandatory.** Red → green → refactor. No production code without a failing test first. See `AGENTS.md`.
+- **Session close:** French synthèse PDF for NH (`docs/syntheses/`) before declaring the session done.

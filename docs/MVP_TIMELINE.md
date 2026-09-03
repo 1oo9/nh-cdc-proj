@@ -10,6 +10,8 @@
 
 Assume **weeknights ~3.5–4 h** (target 20:00–00:00, shift if needed) and **weekend days ~6–8 h**. One human (1oo9), Kami pairing. Green light still required before every push.
 
+**Session close:** French synthèse in `docs/syntheses/` + PDF via `scripts/export_pdf.py` for 1oo9 to send NH. No session is closed without it.
+
 **TDD:** every session is red → green → refactor. A gate is not met because the screen works; it is met when the tests that name that behaviour are green. Do not skip the cycle to go faster.
 
 **Fully testable** means: paper QR (or `/t/<token>`) → menu → options → panier → validation → confirmation → kitchen ticket → statuts through `terminée`, on a phone and a tablet, against real Postgres. No Stripe. No diner PII.

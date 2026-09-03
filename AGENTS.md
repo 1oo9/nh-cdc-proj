@@ -80,6 +80,7 @@ Maximum use of Cursor agents means **structure + supervision**, not a swarm.
 - Prefer a frozen MVP in one real restaurant over a SaaS skeleton.
 - Architecture may be ready to grow (multi-tenant schema). Product may not.
 - Client docs live under `docs/`, in French, exportable to PDF via `scripts/export_pdf.py`.
+- **End of every session:** write a French synthèse for NH in `docs/syntheses/SYNTHESE_S<n>_YYYY-MM-DD.md`, export it with `scripts/export_pdf.py`, and tell 1oo9 the PDF path so they can send it. Do this before calling the session closed. No Kami/agent internals in that file.
 - Internal agent law lives in **this file**.
 
 ### TDD (non-negotiable)

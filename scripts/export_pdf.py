@@ -44,7 +44,9 @@ def export_one(src: Path, dest: Path, css: str) -> None:
 def iter_sources(paths: list[str]) -> list[Path]:
     if paths:
         return [Path(p).resolve() for p in paths]
-    return sorted(p for p in (ROOT / "docs").glob("*.md") if p.is_file())
+    docs = list((ROOT / "docs").glob("*.md"))
+    syntheses = list((ROOT / "docs" / "syntheses").glob("*.md"))
+    return sorted(p for p in docs + syntheses if p.is_file())
 
 
 def main() -> int:

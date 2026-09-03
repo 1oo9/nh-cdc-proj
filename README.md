@@ -117,6 +117,7 @@ Si le calendrier glisse, on coupe le polish et un éventuel hébergement cloud. 
 |---|---|
 | [docs/CAHIER_DES_CHARGES.md](docs/CAHIER_DES_CHARGES.md) | Besoin tel que formulé (v0.1) |
 | [docs/PROPOSITION_TECHNIQUE.md](docs/PROPOSITION_TECHNIQUE.md) | Réponses aux 7 questions (architecture, stack, BDD, QR, live, délai, risques) |
+| [docs/syntheses/](docs/syntheses/) | Comptes rendus de session (un PDF à envoyer à NH à chaque fin de session) |
 
 Export PDF (mise en page conservée) :
 
