@@ -1,5 +1,16 @@
 .venv/
+apps/api/.venv/
 __pycache__/
 *.pyc
 .DS_Store
 docs/pdf/
+node_modules/
+.next/
+apps/web/.next/
+.tools/
+*.egg-info/
+.pytest_cache/
+.coverage
+dist/
+.env
+

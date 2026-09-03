@@ -128,10 +128,39 @@ Les PDF sortent dans `docs/pdf/` (non versionnés).
 
 ---
 
-## État du dépôt
+## Lancer le socle (S0)
 
-Branche de travail : **`tableos`**.
+Branche de travail : **`tableos`**. TDD : `pytest` (API) et `vitest` (web) avant toute fonctionnalité.
 
-Aujourd’hui le dépôt porte surtout le **cadrage**. Le code applicatif (FastAPI + Next.js) commence maintenant que les choix sont figés. Il est écrit en **TDD** (test qui échoue → implémentation minimale → refactor). Ce README sera mis à jour avec les commandes de lancement dès que le socle tourne.
+**API**
+
+```bash
+cd apps/api
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+uvicorn app.main:app --reload --port 8000
+```
+
+`GET http://localhost:8000/health` → `{"status":"ok"}`
+
+**Web**
+
+```bash
+cd apps/web
+npm install
+npm test
+npm run dev
+```
+
+`http://localhost:3000` affiche `API ok` si l’API tourne.
+
+**Compose** (Postgres + Redis + api + web) — Docker n’est pas encore installé sur la machine de 1oo9 :
+
+```bash
+docker compose up --build
+```
+
+Variables : copier `.env.example`. Le code S0 **n’utilise pas** encore la base ni Redis.
 
 **Dev en chaise :** 1oo9.
