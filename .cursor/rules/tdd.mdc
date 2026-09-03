@@ -1,0 +1,14 @@
+---
+description: TDD cycle — red, green, refactor before production code
+alwaysApply: true
+---
+
+# TDD
+
+This repo is TDD-only. Follow `AGENTS.md` → Methodology → TDD.
+
+- Write the failing test first. Then the minimum code. Then refactor.
+- Domain and API: no exceptions (orders, QR tokens, statuses, tenant, cents, idempotency).
+- UI: test behaviour that can break a service, not class names.
+- Do not ship a feature with tests written after the fact as decoration.
+- Session “done when” includes the tests that prove the gate.

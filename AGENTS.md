@@ -74,18 +74,34 @@ Maximum use of Cursor agents means **structure + supervision**, not a swarm.
 
 ---
 
-## Methodology (seed — will grow)
+## Methodology
 
 - Answer the question that was asked. Do not start the next phase unasked.
 - Prefer a frozen MVP in one real restaurant over a SaaS skeleton.
 - Architecture may be ready to grow (multi-tenant schema). Product may not.
 - Client docs live under `docs/`, in French, exportable to PDF via `scripts/export_pdf.py`.
-- Internal agent law lives in **this file**. Coding style, review bars, and test gates will be appended here when 1oo9 sets them. Do not impose a style guide that was not written.
+- Internal agent law lives in **this file**.
+
+### TDD (non-negotiable)
+
+The project **functions fully in TDD**. No feature, bugfix, or endpoint is “done” without the cycle:
+
+1. **Red** — write one failing test that states the behaviour (NH’s words where they exist).
+2. **Green** — the smallest production change that makes that test pass.
+3. **Refactor** — clean the implementation; tests stay green. Do not add behaviour in this step.
+
+Rules:
+
+- Do not write production code first and “add tests after” to decorate a commit.
+- One behaviour per test. Name tests after the outcome (`order_rejected_when_product_unavailable`), not the method.
+- **Domain and API are strict TDD** (orders, tokens, statuses, tenant isolation, cents, idempotency).
+- **UI:** TDD the behaviour that can break a service (submit, kitchen status, token routing). Do not TDD Tailwind class lists.
+- A session gate includes the tests that prove it. If the deadline is tight, cut polish — **do not cut the red-green cycle**.
+- Tests run locally before you ask 1oo9 for a push green light.
 
 ---
 
 ## Philosophy / mottos (living)
 
-Empty on purpose. 1oo9 and named agents add lines here over time.
-
+- **Red, green, refactor — or it is not in the product.**
 -
