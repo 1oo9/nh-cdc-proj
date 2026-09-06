@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PublicMenuView } from "./PublicMenuView";
 
+vi.mock("next/link", () => ({
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+}));
+
 describe("PublicMenuView", () => {
   it("shows restaurant name and available product from menu API", async () => {
     vi.stubGlobal(
@@ -23,7 +29,14 @@ describe("PublicMenuView", () => {
                   description: "Classic",
                   price_cents: 1250,
                   photo_url: null,
-                  options: [{ name: "fromage", price_delta_cents: 100, group_name: "Suppléments" }],
+                  options: [
+                    {
+                      id: "o1",
+                      name: "fromage",
+                      price_delta_cents: 100,
+                      group_name: "Suppléments",
+                    },
+                  ],
                 },
               ],
             },

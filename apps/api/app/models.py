@@ -114,6 +114,11 @@ class Order(Base):
     __tablename__ = "orders"
     __table_args__ = (
         UniqueConstraint("restaurant_id", "number", name="uq_orders_restaurant_number"),
+        UniqueConstraint(
+            "restaurant_id",
+            "idempotency_key",
+            name="uq_orders_restaurant_idempotency",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -126,6 +131,7 @@ class Order(Base):
         nullable=False,
     )
     total_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(64), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     items: Mapped[list[OrderItem]] = relationship(back_populates="order")
@@ -141,6 +147,7 @@ class OrderItem(Base):
     unit_price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
 
     order: Mapped[Order] = relationship(back_populates="items")
+    product: Mapped[Product] = relationship()
     options: Mapped[list[OrderItemOption]] = relationship(back_populates="order_item")
 
 
@@ -153,6 +160,7 @@ class OrderItemOption(Base):
     price_delta_cents: Mapped[int] = mapped_column(Integer, nullable=False)
 
     order_item: Mapped[OrderItem] = relationship(back_populates="options")
+    option: Mapped[Option] = relationship()
 
 
 class Payment(Base):

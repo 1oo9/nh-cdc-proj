@@ -54,6 +54,13 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - Admin: create tables + download QR PNG (`PUBLIC_WEB_BASE_URL` baked into QR, default `http://localhost:3000`).
 - Rebuild api/web images after S3 for Compose to serve new routes.
 
+## Orders (S4)
+
+- Cart lives in `sessionStorage` (`nh_cart_<token>`), never on the server until submit.
+- `POST /orders` + `GET /orders/{id}` — table token only; price snapshot; unavailable product → 409; same `idempotency_key` → one order.
+- Web: `/t/<token>/panier` → `/t/<token>/confirmation/<orderId>`.
+- After pull: `alembic upgrade head` (adds `orders.idempotency_key`) then rebuild api/web.
+
 | Session | Done when |
 |---|---|
 | S0 | Health + Compose up |
@@ -74,3 +81,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-03 | S0 skeleton + Compose; synthèse rule. |
 | 2026-09-06 | S1 schema/seed; S2 admin; tests isolated on `nh_test`; 1oo9: useful agent notes → this file. |
 | 2026-09-06 | S3: public menu by token + admin tables/QR PNG. |
+| 2026-09-06 | S4: cart → POST /orders (idempotency + availability) → confirmation. |

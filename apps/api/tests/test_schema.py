@@ -119,6 +119,7 @@ async def test_order_number_unique_per_restaurant_not_globally(db_session):
             number=152,
             status=OrderStatus.nouvelle,
             total_cents=1000,
+            idempotency_key=uuid.uuid4().hex,
         )
     )
     db_session.add(
@@ -128,6 +129,7 @@ async def test_order_number_unique_per_restaurant_not_globally(db_session):
             number=152,
             status=OrderStatus.nouvelle,
             total_cents=2000,
+            idempotency_key=uuid.uuid4().hex,
         )
     )
     await db_session.commit()
@@ -139,6 +141,7 @@ async def test_order_number_unique_per_restaurant_not_globally(db_session):
             number=152,
             status=OrderStatus.nouvelle,
             total_cents=500,
+            idempotency_key=uuid.uuid4().hex,
         )
     )
     with pytest.raises(IntegrityError):
@@ -181,6 +184,7 @@ async def test_order_item_snapshots_unit_price_cents(db_session):
         number=1,
         status=OrderStatus.nouvelle,
         total_cents=1250,
+        idempotency_key=uuid.uuid4().hex,
     )
     db_session.add(order)
     await db_session.flush()

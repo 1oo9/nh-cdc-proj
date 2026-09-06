@@ -175,3 +175,31 @@ class PublicMenuOut(BaseModel):
     restaurant: PublicRestaurantOut
     table: PublicTableOut
     categories: list[PublicCategoryOut]
+
+
+class OrderItemIn(BaseModel):
+    product_id: UUID
+    quantity: int = Field(ge=1)
+    option_ids: list[UUID] = Field(default_factory=list)
+
+
+class OrderCreate(BaseModel):
+    table_token: str
+    idempotency_key: str = Field(min_length=8, max_length=64)
+    items: list[OrderItemIn] = Field(min_length=1)
+
+
+class OrderItemOut(BaseModel):
+    product_name: str
+    quantity: int
+    unit_price_cents: int
+    options: list[str]
+
+
+class OrderOut(BaseModel):
+    id: UUID
+    number: int
+    status: str
+    table_label: str
+    total_cents: int
+    items: list[OrderItemOut]
