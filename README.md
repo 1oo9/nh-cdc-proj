@@ -129,21 +129,30 @@ Les PDF sortent dans `docs/pdf/` (non versionnés).
 
 ---
 
-## Lancer le socle (S0)
+## Lancer le socle
 
 Branche de travail : **`tableos`**. TDD : `pytest` (API) et `vitest` (web) avant toute fonctionnalité.
 
-**API**
+**Compose** (Postgres + Redis + api + web) :
+
+```bash
+docker compose up --build -d
+```
+
+**API (hôte, contre la Postgres Compose)**
 
 ```bash
 cd apps/api
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q
+alembic upgrade head
+python -m app.seed
 uvicorn app.main:app --reload --port 8000
 ```
 
-`GET http://localhost:8000/health` → `{"status":"ok"}`
+`GET http://localhost:8000/health` → `{"status":"ok"}`  
+Seed démo : restaurant **Chicken Street Paris**, table **14** (jeton opaque), burgers / accompagnements / boissons.
 
 **Web**
 
@@ -156,12 +165,6 @@ npm run dev
 
 `http://localhost:3000` affiche `API ok` si l’API tourne.
 
-**Compose** (Postgres + Redis + api + web) — Docker n’est pas encore installé sur la machine de 1oo9 :
-
-```bash
-docker compose up --build
-```
-
-Variables : copier `.env.example`. Le code S0 **n’utilise pas** encore la base ni Redis.
+Variables : copier `.env.example`. Redis est allumé ; le code applicatif ne l’utilise qu’à partir de S6.
 
 **Dev en chaise :** 1oo9.
