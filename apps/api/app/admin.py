@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import secrets
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +22,9 @@ from app.models import (
     OptionGroup,
     Product,
     Restaurant,
+    Table,
 )
+from app.qr import qr_png_bytes
 from app.schemas import (
     CategoryCreate,
     CategoryOut,
@@ -35,6 +39,8 @@ from app.schemas import (
     ProductUpdate,
     RestaurantOut,
     RestaurantUpdate,
+    TableCreate,
+    TableOut,
     TokenResponse,
 )
 
@@ -258,3 +264,62 @@ async def create_option(
     await session.commit()
     await session.refresh(option)
     return option
+
+
+@router.get("/restaurants/{restaurant_id}/tables", response_model=list[TableOut])
+async def list_tables(
+    restaurant_id: UUID,
+    _: AdminUser = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    rows = (
+        await session.execute(
+            select(Table)
+            .where(Table.restaurant_id == restaurant_id)
+            .order_by(Table.label)
+        )
+    ).scalars().all()
+    return rows
+
+
+@router.post(
+    "/restaurants/{restaurant_id}/tables",
+    response_model=TableOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_table(
+    restaurant_id: UUID,
+    body: TableCreate,
+    _: AdminUser = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    if await session.get(Restaurant, restaurant_id) is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    table = Table(
+        restaurant_id=restaurant_id,
+        label=body.label,
+        public_token=secrets.token_urlsafe(16),
+        active=body.active,
+    )
+    session.add(table)
+    await session.commit()
+    await session.refresh(table)
+    return table
+
+
+@router.get("/tables/{table_id}/qr.png")
+async def download_table_qr(
+    table_id: UUID,
+    _: AdminUser = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    table = await session.get(Table, table_id)
+    if table is None:
+        raise HTTPException(status_code=404, detail="Table not found")
+    return Response(
+        content=qr_png_bytes(table.public_token),
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'attachment; filename="table-{table.label}-qr.png"'
+        },
+    )

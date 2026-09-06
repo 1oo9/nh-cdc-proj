@@ -11,7 +11,7 @@ Follow `AGENTS.md` at the repo root. It outranks habit.
 - Documents sent to NH are written in **French**.
 - **Do not commit-to-remote or push** without an explicit 1oo9 green light in the current turn.
 - Agent commits end with: `Co-Authored by Cursor Agent (<name> + <model>)`.
-- No diner PII. No Stripe until asked. Do not write `docs/DEV_NOTES.md` unless 1oo9 flagged it.
+- No diner PII. No Stripe until asked. When proposing a useful operational note to 1oo9, also add it to `docs/DEV_NOTES.md`.
 - Do not invent agent names or corporate roles. 1oo9 assigns both.
 - **TDD is mandatory.** Red → green → refactor. No production code without a failing test first. See `AGENTS.md`.
 - **Session close:** French synthèse PDF for NH (`docs/syntheses/`) before declaring the session done.

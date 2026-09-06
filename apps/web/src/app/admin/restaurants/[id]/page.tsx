@@ -29,8 +29,10 @@ export default function RestaurantAdminPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [tables, setTables] = useState<Array<{ id: string; label: string; public_token: string }>>([]);
   const [categoryName, setCategoryName] = useState("");
   const [productName, setProductName] = useState("");
+  const [tableLabel, setTableLabel] = useState("");
   const [priceCents, setPriceCents] = useState("1250");
   const [categoryId, setCategoryId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -41,16 +43,18 @@ export default function RestaurantAdminPage() {
       router.replace("/admin/login");
       return;
     }
-    const [catsRes, productsRes] = await Promise.all([
+    const [catsRes, productsRes, tablesRes] = await Promise.all([
       fetch(`${API_URL}/admin/restaurants/${id}/categories`, { headers: authHeaders() }),
       fetch(`${API_URL}/admin/restaurants/${id}/products`, { headers: authHeaders() }),
+      fetch(`${API_URL}/admin/restaurants/${id}/tables`, { headers: authHeaders() }),
     ]);
-    if (catsRes.status === 401 || productsRes.status === 401) {
+    if (catsRes.status === 401 || productsRes.status === 401 || tablesRes.status === 401) {
       router.replace("/admin/login");
       return;
     }
     setCategories(await catsRes.json());
     setProducts(await productsRes.json());
+    setTables(await tablesRes.json());
   }, [id, router]);
 
   useEffect(() => {
@@ -114,6 +118,39 @@ export default function RestaurantAdminPage() {
     await load();
   }
 
+  async function createTable(event: FormEvent) {
+    event.preventDefault();
+    const response = await fetch(`${API_URL}/admin/restaurants/${id}/tables`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ label: tableLabel }),
+    });
+    if (!response.ok) {
+      setMessage("Échec création table");
+      return;
+    }
+    setTableLabel("");
+    setMessage("Table créée");
+    await load();
+  }
+
+  async function downloadQr(tableId: string, label: string) {
+    const response = await fetch(`${API_URL}/admin/tables/${tableId}/qr.png`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) {
+      setMessage("Échec téléchargement QR");
+      return;
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `table-${label}-qr.png`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="mx-auto min-h-screen max-w-3xl space-y-8 p-8">
       <h1 className="text-2xl font-semibold">Menu</h1>
@@ -138,6 +175,39 @@ export default function RestaurantAdminPage() {
           />
           <button type="submit" className="bg-zinc-900 px-3 py-2 text-white">
             Ajouter
+          </button>
+        </form>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium">Tables & QR</h2>
+        <ul className="mb-4 space-y-2 text-sm">
+          {tables.map((table) => (
+            <li key={table.id} className="flex items-center justify-between border border-zinc-200 px-3 py-2">
+              <span>
+                Table {table.label}
+                <span className="ml-2 text-zinc-500">/t/{table.public_token}</span>
+              </span>
+              <button
+                type="button"
+                className="underline"
+                onClick={() => void downloadQr(table.id, table.label)}
+              >
+                QR PNG
+              </button>
+            </li>
+          ))}
+        </ul>
+        <form onSubmit={createTable} className="flex gap-2">
+          <input
+            className="flex-1 border border-zinc-300 px-3 py-2"
+            value={tableLabel}
+            onChange={(e) => setTableLabel(e.target.value)}
+            placeholder="Libellé table (ex. 14)"
+            required
+          />
+          <button type="submit" className="bg-zinc-900 px-3 py-2 text-white">
+            Ajouter table
           </button>
         </form>
       </section>

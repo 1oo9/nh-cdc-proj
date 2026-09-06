@@ -34,7 +34,7 @@ Add a row when 1oo9 names someone. No other names exist.
 3. **Diner PII is forbidden.** No name, email, phone, device id on orders. Cart stays on the device until submit. Confirmation is on-screen. GDPR is a constraint, not a feature to build.
 4. **Money:** integer cents. **QR:** opaque table token, never a guessable `/table/14`. **Tenant:** `restaurant_id` on every business row.
 5. **Verbatim:** keep NH’s words for product objects (`table`, `cuisine`, `nouvelle` / `acceptée` / `en préparation` / `prête` / `terminée`, restaurant example “Chicken Street Paris”). Do not rebrand the product.
-6. **DEV_NOTES.md** is 1oo9’s notebook. Write there only when 1oo9 flags it.
+6. **DEV_NOTES.md** is 1oo9’s notebook. When an agent proposes a useful operational note to 1oo9, also write it there (no dump, no NH fluff).
 
 ---
 

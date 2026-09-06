@@ -117,3 +117,61 @@ class OptionOut(BaseModel):
     option_group_id: UUID
     name: str
     price_delta_cents: int
+
+
+class TableCreate(BaseModel):
+    label: str
+    active: bool = True
+
+
+class TableOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    restaurant_id: UUID
+    label: str
+    public_token: str
+    active: bool
+
+
+class PublicRestaurantOut(BaseModel):
+    id: UUID
+    name: str
+    currency: str
+
+
+class PublicTableOut(BaseModel):
+    label: str
+    public_token: str
+
+
+class PublicOptionOut(BaseModel):
+    id: UUID
+    name: str
+    price_delta_cents: int
+    group_name: str
+    required: bool
+    min_select: int
+    max_select: int
+
+
+class PublicProductOut(BaseModel):
+    id: UUID
+    name: str
+    description: str | None
+    price_cents: int
+    photo_url: str | None
+    options: list[PublicOptionOut]
+
+
+class PublicCategoryOut(BaseModel):
+    id: UUID
+    name: str
+    sort_order: int
+    products: list[PublicProductOut]
+
+
+class PublicMenuOut(BaseModel):
+    restaurant: PublicRestaurantOut
+    table: PublicTableOut
+    categories: list[PublicCategoryOut]
