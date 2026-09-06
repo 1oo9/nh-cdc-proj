@@ -7,6 +7,7 @@ import secrets
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import hash_password
 from app.models import (
     AdminUser,
     Category,
@@ -18,13 +19,23 @@ from app.models import (
 )
 
 DEMO_SLUG = "chicken-street-paris"
-# Placeholder hash only — admin auth lands in S2. Not a real password.
-DEMO_ADMIN_EMAIL = "admin@nh.local"
-DEMO_ADMIN_PASSWORD_HASH = "s1-placeholder-not-for-login"
+DEMO_ADMIN_EMAIL = "admin@nh.example"
+DEMO_ADMIN_PASSWORD = "nh-admin"
 
 
 def _token() -> str:
     return secrets.token_urlsafe(16)
+
+
+async def _ensure_admin(session: AsyncSession) -> None:
+    admin = (
+        await session.execute(select(AdminUser).where(AdminUser.email == DEMO_ADMIN_EMAIL))
+    ).scalar_one_or_none()
+    password_hash = hash_password(DEMO_ADMIN_PASSWORD)
+    if admin is None:
+        session.add(AdminUser(email=DEMO_ADMIN_EMAIL, password_hash=password_hash))
+    else:
+        admin.password_hash = password_hash
 
 
 async def seed_demo(session: AsyncSession) -> Restaurant:
@@ -32,15 +43,14 @@ async def seed_demo(session: AsyncSession) -> Restaurant:
         await session.execute(select(Restaurant).where(Restaurant.slug == DEMO_SLUG))
     ).scalar_one_or_none()
     if existing is not None:
+        await _ensure_admin(session)
         return existing
 
     restaurant = Restaurant(name="Chicken Street Paris", slug=DEMO_SLUG)
     session.add(restaurant)
     await session.flush()
 
-    session.add(
-        AdminUser(email=DEMO_ADMIN_EMAIL, password_hash=DEMO_ADMIN_PASSWORD_HASH)
-    )
+    await _ensure_admin(session)
 
     burgers = Category(restaurant_id=restaurant.id, name="Burgers", sort_order=1)
     sides = Category(restaurant_id=restaurant.id, name="Accompagnements", sort_order=2)
@@ -108,6 +118,7 @@ async def run_seed() -> None:
         restaurant = await seed_demo(session)
         await session.commit()
         print(f"Seeded restaurant: {restaurant.name} ({restaurant.slug})")
+        print(f"Admin login: {DEMO_ADMIN_EMAIL} / {DEMO_ADMIN_PASSWORD}")
 
 
 if __name__ == "__main__":

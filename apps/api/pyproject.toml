@@ -10,6 +10,9 @@ dependencies = [
   "asyncpg>=0.30",
   "alembic>=1.14",
   "psycopg[binary]>=3.2",
+  "bcrypt>=4.2",
+  "PyJWT>=2.9",
+  "email-validator>=2.2",
 ]
 
 [project.optional-dependencies]

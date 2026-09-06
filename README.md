@@ -152,7 +152,8 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 `GET http://localhost:8000/health` → `{"status":"ok"}`  
-Seed démo : restaurant **Chicken Street Paris**, table **14** (jeton opaque), burgers / accompagnements / boissons.
+Seed démo : restaurant **Chicken Street Paris**, table **14** (jeton opaque), burgers / accompagnements / boissons.  
+Admin interne : [http://localhost:3000/admin/login](http://localhost:3000/admin/login) — `admin@nh.example` / `nh-admin`
 
 **Web**
 

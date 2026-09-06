@@ -12,8 +12,8 @@ from app.db import Base
 from app.main import app as fastapi_app
 
 TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://nh:nh@127.0.0.1:5432/nh",
+    "TEST_DATABASE_URL",
+    "postgresql+asyncpg://nh:nh@127.0.0.1:5432/nh_test",
 )
 
 
