@@ -61,6 +61,13 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - Web: `/t/<token>/panier` → `/t/<token>/confirmation/<orderId>`.
 - After pull: `alembic upgrade head` (adds `orders.idempotency_key`) then rebuild api/web.
 
+## Kitchen (S5)
+
+- PIN: `KITCHEN_PIN` (Compose/default `nh-kitchen`). Login: `/cuisine/login` → board `/cuisine`.
+- API: `POST /kitchen/login` (slug + pin) → JWT `role=kitchen`; `GET /kitchen/orders`; `PATCH /kitchen/orders/{id}` (next status only).
+- Statuses (API): `nouvelle` → `acceptee` → `en_preparation` → `prete` → `terminee`. UI shows NH accents.
+- Manual **Rafraîchir** is enough for S5; live push is S6.
+
 | Session | Done when |
 |---|---|
 | S0 | Health + Compose up |
@@ -68,7 +75,8 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | S2 | Admin JWT + menu CRUD UI |
 | S3 | Tables/QR + public `/t/<token>` menu (read) |
 | S4 | Cart → order → confirmation |
-| S5–S6 | Cuisine + realtime |
+| S5 | Kitchen PIN + tickets + status (refresh OK) |
+| S6 | Cuisine realtime (+ poll fallback) |
 | S10 | Full parcours 13 Sep |
 
 ---
@@ -82,3 +90,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-06 | S1 schema/seed; S2 admin; tests isolated on `nh_test`; 1oo9: useful agent notes → this file. |
 | 2026-09-06 | S3: public menu by token + admin tables/QR PNG. |
 | 2026-09-06 | S4: cart → POST /orders (idempotency + availability) → confirmation. |
+| 2026-09-09 | S5: kitchen PIN JWT + open tickets + linear status advance. |

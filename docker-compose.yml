@@ -32,6 +32,9 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://nh:nh@db:5432/nh
       REDIS_URL: redis://redis:6379/0
+      KITCHEN_PIN: nh-kitchen
+      JWT_SECRET: nh-dev-secret-change-me-32b-min!!
+      PUBLIC_WEB_BASE_URL: http://localhost:3000
     depends_on:
       db:
         condition: service_healthy

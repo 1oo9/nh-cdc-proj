@@ -203,3 +203,18 @@ class OrderOut(BaseModel):
     table_label: str
     total_cents: int
     items: list[OrderItemOut]
+
+
+class KitchenLoginIn(BaseModel):
+    restaurant_slug: str
+    pin: str
+
+
+class KitchenLoginOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    restaurant_id: UUID
+
+
+class KitchenStatusUpdate(BaseModel):
+    status: str
