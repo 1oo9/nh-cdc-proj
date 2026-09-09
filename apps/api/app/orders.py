@@ -20,6 +20,7 @@ from app.models import (
     Table,
 )
 from app.schemas import OrderCreate, OrderItemOut, OrderOut
+from app.realtime import publish_kitchen_event
 
 router = APIRouter(tags=["orders"])
 
@@ -166,9 +167,14 @@ async def create_order(
             select(Order).where(Order.id == order.id).options(*_order_load_options())
         )
     ).scalar_one()
+    out = _serialize_order(loaded, table.label)
+    await publish_kitchen_event(
+        table.restaurant_id,
+        {"type": "order_created", "order_id": str(loaded.id)},
+    )
     return JSONResponse(
         status_code=201,
-        content=_serialize_order(loaded, table.label).model_dump(mode="json"),
+        content=out.model_dump(mode="json"),
     )
 
 

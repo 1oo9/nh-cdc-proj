@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+/** Poll fallback when WebSocket is down (S6). */
+export const KITCHEN_POLL_MS = 5000;
+
 type Ticket = {
   id: string;
   number: number;
@@ -34,6 +37,11 @@ const NEXT_STATUS: Record<string, { value: string; label: string } | null> = {
   prete: { value: "terminee", label: "terminée" },
   terminee: null,
 };
+
+function wsUrl(token: string) {
+  const base = API_URL.replace(/^http/, "ws");
+  return `${base}/kitchen/ws?token=${encodeURIComponent(token)}`;
+}
 
 export function KitchenBoard() {
   const router = useRouter();
@@ -65,6 +73,41 @@ export function KitchenBoard() {
 
   useEffect(() => {
     void load();
+  }, [load]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      void load();
+    }, KITCHEN_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [load]);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("nh_kitchen_token");
+    if (!token) return;
+
+    let closed = false;
+    let socket: WebSocket | null = null;
+    let reconnectTimer: number | undefined;
+
+    function connect() {
+      if (closed) return;
+      socket = new WebSocket(wsUrl(token!));
+      socket.onmessage = () => {
+        void load();
+      };
+      socket.onclose = () => {
+        if (closed) return;
+        reconnectTimer = window.setTimeout(connect, 2000);
+      };
+    }
+
+    connect();
+    return () => {
+      closed = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
+      socket?.close();
+    };
   }, [load]);
 
   async function advance(ticket: Ticket) {

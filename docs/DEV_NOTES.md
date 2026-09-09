@@ -68,6 +68,13 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - Statuses (API): `nouvelle` → `acceptee` → `en_preparation` → `prete` → `terminee`. UI shows NH accents.
 - Manual **Rafraîchir** is enough for S5; live push is S6.
 
+## Realtime (S6)
+
+- Redis channel `kitchen:{restaurant_id}` — publish on order create + status update (best-effort; order still succeeds if Redis is down).
+- WS: `ws://…/kitchen/ws?token=<kitchen_jwt>` — kitchen board reconnects on close.
+- Poll fallback every **5 s** (`KITCHEN_POLL_MS`) so Wi‑Fi drops don’t freeze the board.
+- Needs `redis` Python package + Compose Redis (already in stack).
+
 | Session | Done when |
 |---|---|
 | S0 | Health + Compose up |
@@ -91,3 +98,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-06 | S3: public menu by token + admin tables/QR PNG. |
 | 2026-09-06 | S4: cart → POST /orders (idempotency + availability) → confirmation. |
 | 2026-09-09 | S5: kitchen PIN JWT + open tickets + linear status advance. |
+| 2026-09-09 | S6: Redis pub/sub + kitchen WS + 5s poll fallback. |
