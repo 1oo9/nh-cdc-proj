@@ -94,19 +94,16 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - `./scripts/lan_demo_env.sh` (or `LAN_IP=x.x.x.x ./scripts/lan_demo_env.sh`) prints `.env` lines: `NEXT_PUBLIC_API_URL`, `PUBLIC_WEB_BASE_URL`, `CORS_ORIGINS`.
 - Compose reads those from `.env`; **rebuild** after changing web API URL. CORS defaults to localhost; add `http://<lan-ip>:3000` for the phone browser origin.
 - Runbook lives in README → **Deux appareils (même stack LAN)**.
+- Create `.env` from `.env.example` if missing (`cp .env.example .env`). Never commit `.env`.
+
+## Gate (S10)
+
+- Automated: `apps/api/tests/test_gate_parcours.py` — menu → order → kitchen through `terminee`.
+- Manual: 1oo9 walks phone + tablet; bugfix only after that.
 
 | Session | Done when |
 |---|---|
-| S0 | Health + Compose up |
-| S1 | Models + migrate + seed |
-| S2 | Admin JWT + menu CRUD UI |
-| S3 | Tables/QR + public `/t/<token>` menu (read) |
-| S4 | Cart → order → confirmation |
-| S5 | Kitchen PIN + tickets + status (refresh OK) |
-| S6 | Cuisine realtime (+ poll fallback) |
-| S7 | Ugly cases + phone/tablet layout |
-| S8 | Demo seed + printable QR sheet |
-| S9 | Second device on same LAN stack |
+| S0–S9 | … |
 | S10 | Full parcours gate |
 
 ---
@@ -125,3 +122,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-14 | S7: double-tap guards, 404/409 UX, tablet kitchen grid, NH status labels. |
 | 2026-09-14 | S8: richer Chicken Street seed (tables 12–14) + printable QR sheet. |
 | 2026-09-14 | S9: LAN CORS/env wiring + README two-device runbook. |
+| 2026-09-14 | S10: gate smoke (API + live Compose) + recette checklist. |
