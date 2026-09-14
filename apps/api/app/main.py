@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.admin import router as admin_router
+from app.cors import parse_cors_origins
 from app.kitchen import router as kitchen_router
 from app.orders import router as orders_router
 from app.public import router as public_router
@@ -9,7 +10,7 @@ from app.public import router as public_router
 app = FastAPI(title="nh-api")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=parse_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )

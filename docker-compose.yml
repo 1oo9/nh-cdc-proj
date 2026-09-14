@@ -32,9 +32,10 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://nh:nh@db:5432/nh
       REDIS_URL: redis://redis:6379/0
-      KITCHEN_PIN: nh-kitchen
-      JWT_SECRET: nh-dev-secret-change-me-32b-min!!
-      PUBLIC_WEB_BASE_URL: http://localhost:3000
+      KITCHEN_PIN: ${KITCHEN_PIN:-nh-kitchen}
+      JWT_SECRET: ${JWT_SECRET:-nh-dev-secret-change-me-32b-min!!}
+      PUBLIC_WEB_BASE_URL: ${PUBLIC_WEB_BASE_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     depends_on:
       db:
         condition: service_healthy
@@ -46,7 +47,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     depends_on:
       - api
 

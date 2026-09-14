@@ -152,9 +152,10 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 `GET http://localhost:8000/health` → `{"status":"ok"}`  
-Seed démo : restaurant **Chicken Street Paris**, table **14** (jeton opaque), burgers / accompagnements / boissons.  
+Seed démo : restaurant **Chicken Street Paris**, tables **12 / 13 / 14** (jetons opaques), menu burgers / accompagnements / boissons.  
 Admin interne : [http://localhost:3000/admin/login](http://localhost:3000/admin/login) — `admin@nh.example` / `nh-admin`  
-Menu client (lecture) : `http://localhost:3000/t/<jeton>` — jeton opaque de la table (admin → Tables & QR).
+Cuisine : [http://localhost:3000/cuisine/login](http://localhost:3000/cuisine/login) — slug `chicken-street-paris`, PIN `nh-kitchen`  
+Menu client : `http://localhost:3000/t/<jeton>` — jeton via admin → Tables & QR, ou **Feuille QR**.
 
 **Web**
 
@@ -167,6 +168,38 @@ npm run dev
 
 `http://localhost:3000` affiche `API ok` si l’API tourne.
 
-Variables : copier `.env.example`. Redis est allumé ; le code applicatif ne l’utilise qu’à partir de S6.
+Variables : copier `.env.example` → `.env`. Redis est utilisé pour le live cuisine (S6+).
 
 **Dev en chaise :** 1oo9.
+
+---
+
+## Deux appareils (même stack LAN)
+
+Objectif S9 : **téléphone** (convive) + **tablette** (cuisine) contre **un** Compose sur la machine de 1oo9. Pas de cloud requis.
+
+1. **IP LAN** de la machine (Wi‑Fi) :
+
+```bash
+chmod +x scripts/lan_demo_env.sh
+./scripts/lan_demo_env.sh
+```
+
+Le script affiche les lignes à mettre dans `.env` à la racine (`NEXT_PUBLIC_API_URL`, `PUBLIC_WEB_BASE_URL`, `CORS_ORIGINS`).
+
+2. **Boot** (depuis la racine, avec ce `.env`) :
+
+```bash
+docker compose up --build -d
+cd apps/api && .venv/bin/alembic upgrade head && .venv/bin/python -m app.seed
+```
+
+3. **Trouver un jeton** : admin → restaurant → **Feuille QR (imprimer)**, ou Tables & QR (`/t/<jeton>`).
+
+4. **Sur le téléphone** (même Wi‑Fi) : ouvrir `http://<lan-ip>:3000/t/<jeton>` → commander.
+
+5. **Sur la tablette** : `http://<lan-ip>:3000/cuisine/login` → PIN `nh-kitchen` → le ticket apparaît (WS ou poll ≤ 5 s).
+
+Si le téléphone ne voit pas l’API : vérifier le pare-feu macOS, que `CORS_ORIGINS` contient `http://<lan-ip>:3000`, et que Compose a bien été **rebuild** après changement d’env web.
+
+Cloud (Fly / Railway) : seulement si le LAN est déjà vert et qu’il reste du temps — hors runbook minimal.
