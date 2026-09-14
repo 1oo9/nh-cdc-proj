@@ -90,3 +90,32 @@ async def test_admin_downloads_qr_png_for_table(api_client, auth_headers, restau
     assert response.status_code == 200
     assert response.headers["content-type"] == "image/png"
     assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.asyncio
+async def test_admin_qr_sheet_lists_tables_with_embedded_png(
+    api_client, auth_headers, restaurant
+):
+    for label in ("12", "13", "14"):
+        await api_client.post(
+            f"/admin/restaurants/{restaurant.id}/tables",
+            headers=auth_headers,
+            json={"label": label},
+        )
+
+    response = await api_client.get(
+        f"/admin/restaurants/{restaurant.id}/qr-sheet",
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["restaurant_name"] == "Chicken Street Paris"
+    assert [t["label"] for t in body["tables"]] == ["12", "13", "14"]
+    for entry in body["tables"]:
+        assert entry["public_token"]
+        assert entry["menu_url"].endswith(f"/t/{entry['public_token']}")
+        assert entry["qr_png_base64"]
+        import base64
+
+        raw = base64.b64decode(entry["qr_png_base64"])
+        assert raw[:8] == b"\x89PNG\r\n\x1a\n"

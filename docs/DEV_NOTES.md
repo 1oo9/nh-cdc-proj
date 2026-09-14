@@ -82,6 +82,12 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - Unknown token UI: « Menu introuvable » + « Rescannez le QR de la table. »
 - Confirmation shows NH status labels (`acceptée`, …). Cuisine uses `md:grid-cols-2` + larger tap targets.
 
+## Demo + QR sheet (S8)
+
+- Re-seed anytime: `cd apps/api && .venv/bin/python -m app.seed` — idempotent; fills missing tables **12/13/14** and menu gaps.
+- Printable sheet: admin → restaurant → **Feuille QR** → `/admin/restaurants/<id>/feuille-qr` (API `GET …/qr-sheet` with base64 PNGs).
+- Cut intentionally: photo pipeline polish.
+
 | Session | Done when |
 |---|---|
 | S0 | Health + Compose up |
@@ -92,7 +98,8 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | S5 | Kitchen PIN + tickets + status (refresh OK) |
 | S6 | Cuisine realtime (+ poll fallback) |
 | S7 | Ugly cases + phone/tablet layout |
-| S8–S9 | Demo data + second device |
+| S8 | Demo seed + printable QR sheet |
+| S9 | Second device on same stack |
 | S10 | Full parcours gate |
 
 ---
@@ -109,3 +116,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-09 | S5: kitchen PIN JWT + open tickets + linear status advance. |
 | 2026-09-09 | S6: Redis pub/sub + kitchen WS + 5s poll fallback. |
 | 2026-09-14 | S7: double-tap guards, 404/409 UX, tablet kitchen grid, NH status labels. |
+| 2026-09-14 | S8: richer Chicken Street seed (tables 12–14) + printable QR sheet. |

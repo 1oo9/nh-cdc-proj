@@ -134,6 +134,19 @@ class TableOut(BaseModel):
     active: bool
 
 
+class QrSheetTableOut(BaseModel):
+    id: UUID
+    label: str
+    public_token: str
+    menu_url: str
+    qr_png_base64: str
+
+
+class QrSheetOut(BaseModel):
+    restaurant_name: str
+    tables: list[QrSheetTableOut]
+
+
 class PublicRestaurantOut(BaseModel):
     id: UUID
     name: str

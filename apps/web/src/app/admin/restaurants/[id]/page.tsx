@@ -180,7 +180,15 @@ export default function RestaurantAdminPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-medium">Tables & QR</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-medium">Tables & QR</h2>
+          <a
+            href={`/admin/restaurants/${id}/feuille-qr`}
+            className="text-sm underline"
+          >
+            Feuille QR (imprimer)
+          </a>
+        </div>
         <ul className="mb-4 space-y-2 text-sm">
           {tables.map((table) => (
             <li key={table.id} className="flex items-center justify-between border border-zinc-200 px-3 py-2">

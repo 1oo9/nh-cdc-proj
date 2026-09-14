@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import secrets
 from uuid import UUID
 
@@ -24,7 +25,7 @@ from app.models import (
     Restaurant,
     Table,
 )
-from app.qr import qr_png_bytes
+from app.qr import qr_png_bytes, table_menu_url
 from app.schemas import (
     CategoryCreate,
     CategoryOut,
@@ -37,6 +38,8 @@ from app.schemas import (
     ProductCreate,
     ProductOut,
     ProductUpdate,
+    QrSheetOut,
+    QrSheetTableOut,
     RestaurantOut,
     RestaurantUpdate,
     TableCreate,
@@ -323,3 +326,34 @@ async def download_table_qr(
             "Content-Disposition": f'attachment; filename="table-{table.label}-qr.png"'
         },
     )
+
+
+@router.get("/restaurants/{restaurant_id}/qr-sheet", response_model=QrSheetOut)
+async def restaurant_qr_sheet(
+    restaurant_id: UUID,
+    _: AdminUser = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    restaurant = await session.get(Restaurant, restaurant_id)
+    if restaurant is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    tables = (
+        await session.execute(
+            select(Table)
+            .where(Table.restaurant_id == restaurant_id, Table.active.is_(True))
+            .order_by(Table.label)
+        )
+    ).scalars().all()
+    entries: list[QrSheetTableOut] = []
+    for table in tables:
+        png = qr_png_bytes(table.public_token)
+        entries.append(
+            QrSheetTableOut(
+                id=table.id,
+                label=table.label,
+                public_token=table.public_token,
+                menu_url=table_menu_url(table.public_token),
+                qr_png_base64=base64.b64encode(png).decode("ascii"),
+            )
+        )
+    return QrSheetOut(restaurant_name=restaurant.name, tables=entries)
