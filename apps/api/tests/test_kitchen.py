@@ -201,3 +201,32 @@ async def test_kitchen_rejects_invalid_status_skip(
         json={"status": "prete"},
     )
     assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_kitchen_repeated_same_next_status_stays_coherent(
+    api_client, kitchen_context, monkeypatch
+):
+    monkeypatch.setenv("KITCHEN_PIN", "4242")
+    token = await _login(api_client, kitchen_context["slug"], kitchen_context["pin"])
+    first = await api_client.patch(
+        f"/kitchen/orders/{kitchen_context['order_id']}",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"status": "acceptee"},
+    )
+    second = await api_client.patch(
+        f"/kitchen/orders/{kitchen_context['order_id']}",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"status": "acceptee"},
+    )
+    assert first.status_code == 200
+    assert first.json()["status"] == "acceptee"
+    assert second.status_code == 409
+    listed = await api_client.get(
+        "/kitchen/orders",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert listed.status_code == 200
+    tickets = listed.json()
+    assert len(tickets) == 1
+    assert tickets[0]["status"] == "acceptee"

@@ -75,6 +75,13 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 - Poll fallback every **5 s** (`KITCHEN_POLL_MS`) so Wi‑Fi drops don’t freeze the board.
 - Needs `redis` Python package + Compose Redis (already in stack).
 
+## Ugly cases (S7)
+
+- Cart: sync `submittingRef` so double Valider posts once (API idempotency remains the backstop).
+- Kitchen: per-ticket advance lock; HTTP 409 on repeat next-status → reload board (no scary false error).
+- Unknown token UI: « Menu introuvable » + « Rescannez le QR de la table. »
+- Confirmation shows NH status labels (`acceptée`, …). Cuisine uses `md:grid-cols-2` + larger tap targets.
+
 | Session | Done when |
 |---|---|
 | S0 | Health + Compose up |
@@ -84,7 +91,9 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | S4 | Cart → order → confirmation |
 | S5 | Kitchen PIN + tickets + status (refresh OK) |
 | S6 | Cuisine realtime (+ poll fallback) |
-| S10 | Full parcours 13 Sep |
+| S7 | Ugly cases + phone/tablet layout |
+| S8–S9 | Demo data + second device |
+| S10 | Full parcours gate |
 
 ---
 
@@ -99,3 +108,4 @@ Internal notes for **1oo9** and any later dev. Not for NH.
 | 2026-09-06 | S4: cart → POST /orders (idempotency + availability) → confirmation. |
 | 2026-09-09 | S5: kitchen PIN JWT + open tickets + linear status advance. |
 | 2026-09-09 | S6: Redis pub/sub + kitchen WS + 5s poll fallback. |
+| 2026-09-14 | S7: double-tap guards, 404/409 UX, tablet kitchen grid, NH status labels. |

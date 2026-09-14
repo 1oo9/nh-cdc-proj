@@ -58,4 +58,56 @@ describe("CartView", () => {
     expect(body.items[0].product_id).toBe("p1");
     expect(push).toHaveBeenCalledWith("/t/tok/confirmation/order-1");
   });
+
+  it("cart_double_tap_valider_posts_once", async () => {
+    const user = userEvent.setup();
+    let resolveFetch!: (value: unknown) => void;
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CartView token="tok" />);
+    expect(await screen.findByText(/Chicken Burger/)).toBeInTheDocument();
+
+    const button = screen.getByRole("button", { name: /Valider la commande/i });
+    await user.click(button);
+    await user.click(button);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.idempotency_key).toBeTruthy();
+
+    resolveFetch({
+      ok: true,
+      json: async () => ({ id: "order-1", number: 1 }),
+    });
+    await waitFor(() => {
+      expect(push).toHaveBeenCalledWith("/t/tok/confirmation/order-1");
+    });
+  });
+
+  it("unavailable_product_shows_refus_at_submit", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+        json: async () => ({ detail: "Product unavailable" }),
+      }),
+    );
+
+    render(<CartView token="tok" />);
+    expect(await screen.findByText(/Chicken Burger/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Valider la commande/i }));
+
+    expect(
+      await screen.findByText(/Un produit n’est plus disponible/i),
+    ).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
 });

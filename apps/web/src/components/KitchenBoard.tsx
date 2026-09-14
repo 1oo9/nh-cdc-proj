@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -47,6 +47,8 @@ export function KitchenBoard() {
   const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [advancingIds, setAdvancingIds] = useState<Set<string>>(new Set());
+  const advancingRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     const token = window.localStorage.getItem("nh_kitchen_token");
@@ -111,63 +113,83 @@ export function KitchenBoard() {
   }, [load]);
 
   async function advance(ticket: Ticket) {
+    if (advancingRef.current.has(ticket.id)) return;
     const next = NEXT_STATUS[ticket.status];
     if (!next) return;
     const token = window.localStorage.getItem("nh_kitchen_token");
     if (!token) return;
-    const response = await fetch(`${API_URL}/kitchen/orders/${ticket.id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: next.value }),
-    });
-    if (!response.ok) {
-      setError("Statut non mis à jour");
-      return;
-    }
-    const updated = (await response.json()) as Ticket;
-    if (updated.status === "terminee") {
-      setTickets((prev) => prev.filter((t) => t.id !== updated.id));
-    } else {
-      setTickets((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+
+    advancingRef.current.add(ticket.id);
+    setAdvancingIds(new Set(advancingRef.current));
+
+    try {
+      const response = await fetch(`${API_URL}/kitchen/orders/${ticket.id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: next.value }),
+      });
+      if (response.status === 409) {
+        // Already advanced (double tap) — refresh for coherent board.
+        await load();
+        return;
+      }
+      if (!response.ok) {
+        setError("Statut non mis à jour");
+        return;
+      }
+      const updated = (await response.json()) as Ticket;
+      if (updated.status === "terminee") {
+        setTickets((prev) => prev.filter((t) => t.id !== updated.id));
+      } else {
+        setTickets((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      }
+    } finally {
+      advancingRef.current.delete(ticket.id);
+      setAdvancingIds(new Set(advancingRef.current));
     }
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-4">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Cuisine</h1>
+        <h1 className="text-2xl font-semibold md:text-3xl">Cuisine</h1>
         <button
           type="button"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className="min-h-11 rounded border border-zinc-300 px-4 py-2 text-sm"
           onClick={() => void load()}
         >
           Rafraîchir
         </button>
       </header>
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm">
+          {error}
+        </p>
+      ) : null}
       {tickets.length === 0 ? (
         <p>Aucune commande ouverte.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="grid gap-4 md:grid-cols-2">
           {tickets.map((ticket) => {
             const next = NEXT_STATUS[ticket.status];
+            const busy = advancingIds.has(ticket.id);
             return (
               <li
                 key={ticket.id}
-                className="border border-zinc-200 bg-white p-4 shadow-sm"
+                className="border border-zinc-200 bg-white p-4 shadow-sm md:p-5"
               >
                 <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-lg font-semibold">
+                  <p className="text-lg font-semibold md:text-xl">
                     #{ticket.number} — Table {ticket.table_label}
                   </p>
                   <p className="text-sm text-zinc-600">
                     {STATUS_LABEL[ticket.status] ?? ticket.status}
                   </p>
                 </div>
-                <ul className="mb-3 space-y-1 text-sm">
+                <ul className="mb-3 space-y-1 text-sm md:text-base">
                   {ticket.items.map((item, index) => (
                     <li key={`${item.product_name}-${index}`}>
                       {item.quantity} × {item.product_name}
@@ -183,7 +205,8 @@ export function KitchenBoard() {
                 {next ? (
                   <button
                     type="button"
-                    className="bg-zinc-900 px-4 py-2 text-sm text-white"
+                    disabled={busy}
+                    className="min-h-12 w-full bg-zinc-900 px-4 py-3 text-sm text-white disabled:opacity-60 md:text-base"
                     onClick={() => void advance(ticket)}
                   >
                     {next.label}

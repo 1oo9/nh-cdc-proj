@@ -52,4 +52,20 @@ describe("PublicMenuView", () => {
     expect(screen.getByText("Chicken Burger")).toBeInTheDocument();
     expect(screen.getByText("12.50 €")).toBeInTheDocument();
   });
+
+  it("unknown_token_shows_menu_introuvable", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ detail: "Not found" }),
+      }),
+    );
+
+    render(<PublicMenuView token="bad-token" />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Menu introuvable/i);
+    expect(screen.getByText(/Rescannez le QR de la table/i)).toBeInTheDocument();
+  });
 });

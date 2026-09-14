@@ -130,4 +130,52 @@ describe("KitchenBoard", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(fetchMock.mock.calls.length).toBeGreaterThan(beforeWs);
   });
+
+  it("kitchen_double_status_click_posts_once", async () => {
+    const user = userEvent.setup();
+    let resolvePatch!: (value: unknown) => void;
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.method === "PATCH") {
+        return new Promise((resolve) => {
+          resolvePatch = resolve;
+        });
+      }
+      return Promise.resolve(ticketResponse);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<KitchenBoard />);
+    expect(await screen.findByText(/#1/)).toBeInTheDocument();
+
+    const button = screen.getByRole("button", { name: /acceptée/i });
+    await user.click(button);
+    await user.click(button);
+
+    const patchCalls = fetchMock.mock.calls.filter(
+      (call) => (call[1] as RequestInit | undefined)?.method === "PATCH",
+    );
+    expect(patchCalls).toHaveLength(1);
+
+    resolvePatch({
+      ok: true,
+      json: async () => ({
+        id: "o1",
+        number: 1,
+        status: "acceptee",
+        table_label: "14",
+        total_cents: 1350,
+        items: [
+          {
+            product_name: "Chicken Burger",
+            quantity: 1,
+            unit_price_cents: 1350,
+            options: ["fromage"],
+          },
+        ],
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByText(/en préparation/i)).toBeInTheDocument();
+    });
+  });
 });

@@ -92,7 +92,14 @@ export function PublicMenuView({ token }: Props) {
   }
 
   if (error) {
-    return <p role="alert">{error}</p>;
+    return (
+      <div className="mx-auto max-w-lg space-y-3 p-4">
+        <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2">
+          {error}
+        </p>
+        <p className="text-sm text-zinc-600">Rescannez le QR de la table.</p>
+      </div>
+    );
   }
   if (!menu) {
     return <p>Chargement…</p>;
@@ -107,7 +114,7 @@ export function PublicMenuView({ token }: Props) {
         </div>
         <Link
           href={`/t/${token}/panier`}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white"
+          className="min-h-11 rounded bg-zinc-900 px-3 py-2 text-sm text-white"
         >
           Panier ({cartCount})
         </Link>
@@ -145,7 +152,7 @@ export function PublicMenuView({ token }: Props) {
                     ) : null}
                     <button
                       type="button"
-                      className="mt-2 text-sm underline"
+                      className="mt-2 min-h-11 text-sm underline"
                       onClick={() => addToCart(product)}
                     >
                       Ajouter

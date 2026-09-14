@@ -5,6 +5,14 @@ import { useEffect, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+const STATUS_LABEL: Record<string, string> = {
+  nouvelle: "nouvelle",
+  acceptee: "acceptée",
+  en_preparation: "en préparation",
+  prete: "prête",
+  terminee: "terminée",
+};
+
 type Order = {
   id: string;
   number: number;
@@ -37,8 +45,16 @@ export function ConfirmationView({ token, orderId }: Props) {
       .catch(() => setError("Commande introuvable"));
   }, [orderId]);
 
-  if (error) return <p role="alert">{error}</p>;
-  if (!order) return <p>Chargement…</p>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-lg p-4">
+        <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2">
+          {error}
+        </p>
+      </div>
+    );
+  }
+  if (!order) return <p className="p-4">Chargement…</p>;
 
   return (
     <div className="mx-auto max-w-lg space-y-6 p-4">
@@ -46,7 +62,9 @@ export function ConfirmationView({ token, orderId }: Props) {
       <p>
         Commande #{order.number} — Table {order.table_label}
       </p>
-      <p className="text-sm text-zinc-600">Statut : {order.status}</p>
+      <p className="text-sm text-zinc-600">
+        Statut : {STATUS_LABEL[order.status] ?? order.status}
+      </p>
       <ul className="space-y-2">
         {order.items.map((item, index) => (
           <li key={`${item.product_name}-${index}`}>
@@ -56,7 +74,7 @@ export function ConfirmationView({ token, orderId }: Props) {
         ))}
       </ul>
       <p className="font-semibold">Total {(order.total_cents / 100).toFixed(2)} €</p>
-      <Link href={`/t/${token}`} className="underline">
+      <Link href={`/t/${token}`} className="inline-block min-h-11 underline">
         Retour au menu
       </Link>
     </div>

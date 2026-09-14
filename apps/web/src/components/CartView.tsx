@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   cartTotalCents,
@@ -21,6 +21,7 @@ export function CartView({ token }: Props) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const total = useMemo(() => cartTotalCents(items), [items]);
 
   useEffect(() => {
@@ -33,6 +34,8 @@ export function CartView({ token }: Props) {
   }
 
   async function submitOrder() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setError(null);
     setSubmitting(true);
     const idempotencyKey =
@@ -58,6 +61,7 @@ export function CartView({ token }: Props) {
             ? "Un produit n’est plus disponible"
             : "Commande impossible",
         );
+        submittingRef.current = false;
         setSubmitting(false);
         return;
       }
@@ -67,6 +71,7 @@ export function CartView({ token }: Props) {
       router.push(`/t/${token}/confirmation/${order.id}`);
     } catch {
       setError("Commande impossible");
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -102,7 +107,7 @@ export function CartView({ token }: Props) {
             </div>
             <button
               type="button"
-              className="mt-1 text-sm underline"
+              className="mt-1 min-h-11 text-sm underline"
               onClick={() => persist(items.filter((_, i) => i !== index))}
             >
               Retirer
@@ -111,11 +116,15 @@ export function CartView({ token }: Props) {
         ))}
       </ul>
       <p className="text-lg font-semibold">Total {(total / 100).toFixed(2)} €</p>
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm">
+          {error}
+        </p>
+      ) : null}
       <button
         type="button"
         disabled={submitting}
-        className="w-full bg-zinc-900 px-4 py-3 text-white disabled:opacity-60"
+        className="w-full min-h-12 bg-zinc-900 px-4 py-3 text-white disabled:opacity-60"
         onClick={() => void submitOrder()}
       >
         Valider la commande
